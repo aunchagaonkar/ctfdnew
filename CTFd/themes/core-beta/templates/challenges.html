@@ -1,70 +1,230 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="jumbotron">
-    <div class="container">
-      <h1>
-        {% trans %}Challenges{% endtrans %}
-      </h1>
+<style>
+@font-face {
+  font-family: "Frozen";
+  src: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/209981/Ice%20kingdom%20-%20Bold%20-%20Por%20Kustren.woff");
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* background: linear-gradient(to bottom, #000428, #004e92), url("https://assets.codepen.io/209981/ice5.jpg"); */
+  background-blend-mode: saturation;
+  background-size: cover;
+}
+
+/* .jumbotron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 10vh;
+  background: #000, url("https://assets.codepen.io/209981/ice5.jpg");
+  background-blend-mode: saturation;
+  background-size: cover;
+  position: relative;
+
+
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    background-color: #000;
+    color: var(--bs-white)
+
+} */
+
+.heading-container h1.frozen-title {
+  font-size: calc(5vw + 1rem);
+  font-family: "Frozen", serif;
+  text-align: center;
+  background-image: url("https://assets.codepen.io/209981/ice.jpg");
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: cover;
+  position: relative;
+  -webkit-text-stroke: 1px #4f90ab;
+  animation: shine 7s infinite linear;
+  margin-top: 5%;
+}
+
+.frozen-title {
+  background-color: transparent; /* Ensure no background color */
+}
+
+@keyframes shine {
+  0%, 100% {
+    background-position: left bottom;
+  }
+  50% {
+    background-position: right top;
+  }
+}
+
+/* jumbotron ------------------------------------------------------------------------ */
+  
+  /* Full screen canvas styling */
+  #matrixCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Ensure it's behind other content */
+  }
+ 
+  /* Adjust the background of cards to be semi-transparent */
+  .challenge-button {
+    background-color: #020303b3; /* Darker background for better readability */
+    color: #fff; /* Bright text color for contrast */
+    border: 1px solid #fff; /* Optional: adds a border to make the button stand out */
+  }
+
+
+h3, .category-header, .challenge-inner {
+  color: #83ecf0; /* Custom purple for contrast */
+  text-shadow: 0 0 8px #000; /* Text shadow for better readability */
+  font-size: 30px;
+  font-style: oblique;
+  transition: color 0.3s ease, text-shadow 0.3s ease; /* Smooth transition for hover effects */
+}
+
+/* Hover effects */
+h1:hover, p:hover, .category-header:hover, .challenge-inner:hover, h3:hover {
+  color: #4f74ee; /* Matrix green on hover */
+  text-shadow: 0 0 12px #4f74ee; /* Enhanced Matrix green glow */
+}
+
+/* Additional hover effect for challenge buttons to match the Matrix theme */
+.challenge-button:hover {
+  background-color: rgba(0, 0, 0, 0.85); /* Darker background on hover for better readability */
+  color: #83ecf0; /* Matrix green text */
+  border-color: #94eefa; /* Matrix green border */
+  text-shadow: 0 0 8px #83f1e8; /* Matrix green text glow */
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, text-shadow 0.3s ease; /* Smooth transition for hover effects */
+}
+
+
+.modal-backdrop {
+    --bs-backdrop-zindex: 1050;
+    --bs-backdrop-bg: #000;
+    --bs-backdrop-opacity: .5;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bs-backdrop-bg)
+}
+
+</style>
+
+<!-- <div class="jumbotron"> -->
+  <div class="heading-container">
+    <h1 class="frozen-title">Challenges</h1>
+  </div>
+<!-- </div> -->
+
+<div class="container" style="position: relative; z-index: 2;">
+  <div class="row">
+    <div class="col-md-12">
+      {% include "components/errors.html" %}
     </div>
   </div>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        {% include "components/errors.html" %}
-      </div>
-    </div>
+  <div 
+    x-data="ChallengeBoard" 
+    @load-challenges.window="loadChallenges()" 
+    @load-challenge.window="loadChallenge($event.detail)"
+  >
+    <div
+        x-ref="challengeWindow" id="challenge-window" class="modal fade" tabindex="-1" role="dialog" x-data=""
+        x-html="$store.challenge.data.view"
+    ></div>
 
-    <div 
-      x-data="ChallengeBoard" 
-      @load-challenges.window="loadChallenges()" 
-      @load-challenge.window="loadChallenge($event.detail)"
-    >
-      <div
-          x-ref="challengeWindow" id="challenge-window" class="modal fade" tabindex="-1" role="dialog" x-data=""
-          x-html="$store.challenge.data.view"
-      ></div>
-
-      <div x-show="!loaded">
-        <div class="min-vh-50 d-flex align-items-center">
-          <div class="text-center w-100">
-            <i class="fas fa-circle-notch fa-spin fa-3x fa-fw spinner"></i>
-          </div>
+    <div x-show="!loaded">
+      <div class="min-vh-50 d-flex align-items-center">
+        <div class="text-center w-100">
+          <i class="fas fa-circle-notch fa-spin fa-3x fa-fw spinner"></i>
         </div>
       </div>
+    </div>
 
-      <div x-show="loaded">
-        <template x-for="(category, idx) in getCategories()" :key="idx">
-          <div class="pt-5">
-            <div class="category-header mb-3">
-              <h3 x-text="category"></h3>
-            </div>
+    <div x-show="loaded">
+      <template x-for="(category, idx) in getCategories()" :key="idx">
+        <div class="pt-5">
+          <div class="category-header mb-3">
+            <h3 x-text="category"></h3>
+          </div>
 
-            <div class="category-challenges d-flex flex-column">
-              <div class="challenges-row row">
-                <template x-for="(c, idx) in getChallenges(category)" :key="c.id">
-                  <div class="col-sm-6 col-md-4 col-lg-3">
-                    <button
-                        class="challenge-button btn btn-dark w-100 text-truncate my-3"
-                        :class="c.solved_by_me ? 'challenge-solved' : ''"
-                        :value="c.id" @click="loadChallenge(c.id)"
-                    >
+          <div class="category-challenges d-flex flex-column">
+            <div class="challenges-row row">
+              <template x-for="(c, idx) in getChallenges(category)" :key="c.id">
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                  <button
+                      class="challenge-button btn btn-dark w-100 text-truncate my-3"
+                      :class="c.solved_by_me ? 'challenge-solved' : ''"
+                      :value="c.id" @click="loadChallenge(c.id)"
+                  >
 
-                      <div class="challenge-inner my-3">
-                        <p x-text="c.name"></p>
-                        <span x-text="c.value"></span>
-                      </div>
-                    </button>
-                  </div>
-                </template>
-              </div>
+                    <div class="challenge-inner my-3">
+                      <p x-text="c.name"></p>
+                      <span x-text="c.value"></span>
+                    </div>
+                  </button>
+                </div>
+              </template>
             </div>
           </div>
-        </template>
-      </div>
+        </div>
+      </template>
     </div>
   </div>
+</div>
+
+<!-- Matrix Canvas -->
+<canvas id="matrixCanvas"></canvas>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('matrixCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]';
+  const fontSize = 20;
+  const columns = canvas.width / fontSize;
+  const drops = Array(Math.floor(columns)).fill(1);
+
+  function drawMatrixRain() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#275dd1b3'; // BLUE text
+    ctx.font = `${fontSize}px monospace`;
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = characters.charAt(Math.floor(Math.random() * characters.length));
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+
+  setInterval(drawMatrixRain, 30);
+});
+</script>
 {% endblock %}
 
 {% block scripts %}

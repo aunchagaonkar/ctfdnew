@@ -1,68 +1,257 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="jumbotron">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+    body, html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Orbitron', sans-serif;
+        background-color: #000;
+        color: #0f0;
+        overflow: hidden;
+        height: 100vh;
+    }
+
+    .section {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    h2 {
+        font-size: 4em;
+        text-align: center;
+        text-shadow: 0 0 20px #0f0;
+        z-index: 1;
+        margin: 0;
+    }
+
+    .tagline {
+        font-size: 1.8em;
+        text-align: center;
+        text-shadow: 0 0 10px #0f0;
+        z-index: 1;
+        margin-top: 20px;
+    }
+
+    .description {
+        font-size: 1.2em;
+        text-align: center;
+        max-width: 600px;
+        margin-top: 20px;
+        color: #8fbc8f;
+        z-index: -1;
+    }
+
+    .star-field {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        perspective: 600px;
+    }
+
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background-color: #fff;
+        animation: star-fall linear infinite;
+        z-index: -1;
+    }
+
+    @keyframes star-fall {
+        0% { transform: translateZ(0); opacity: 1; }
+        100% { transform: translateZ(600px); opacity: 0; }
+    }
+
+    .custom-scoreboard-table {
+        border-collapse: collapse;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.8); /* Ensures table background is dark */
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        color: #0f0; /* Default text color set to green */
+        transition: all 0.3s ease-in-out;
+    }
+
+    .custom-scoreboard-table th {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #0f0; /* Green bottom border */
+        background-color: rgba(0, 0, 0, 0.8); /* Dark background for headers */
+        color: #0f0; /* Green text color */
+        text-shadow: 0 0 5px #0f0; /* Green text shadow for visibility */
+    }
+
+    .custom-scoreboard-table td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #0f0; /* Green bottom border */
+        background-color: #000; /* Black background for data cells */
+        color: #0f0; /* Green text color for visibility */
+    }
+
+    .custom-scoreboard-table tr td a {
+    color: #0f0; /* Green text color */
+    text-decoration: none;
+    transition: color 0.3s ease-in-out, transform 0.3s ease, background-color 0.3s ease;
+    display: inline-block; /* Allows transform to work on inline elements like 'a' */
+}
+
+.custom-scoreboard-table tr td a:hover {
+    color: #fff; /* Changes text color to white on hover */
+    text-decoration: underline; /* Adds an underline to highlight hover */
+    transform: translateY(-5px); /* Moves the link up by 5px */
+    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.6); /* Adds a green glow below */
+    background-color: rgba(0, 255, 0, 0.2); /* Slight background color change on hover */
+}
+
+.custom-scoreboard-table tr:hover {
+    background-color: rgba(0, 255, 0, 0.1); /* Changes the row's background color on hover */
+    transition: background-color 0.3s ease-in-out; /* Smooth transition for background color */
+}
+
+    .badge {
+        background-color: #0f0;
+        color: #000;
+        text-shadow: 0 0 5px #0f0;
+        border-radius: 3px;
+        padding: 3px 7px;
+        font-size: 0.8em;
+    }
+    
+
+</style>
+
+<div class="star-field" id="starField"></div>
+<div class="jumbotron">
     <div class="container">
-      <h1>
-        {% trans %}Scoreboard{% endtrans %}
-      </h1>
+        <h1>{% trans %}Scoreboard{% endtrans %}</h1>
     </div>
-  </div>
-  <div class="container">
+</div>
+
+<div class="container">
     {% include "components/errors.html" %}
 
     <div id="score-graph" class="align-items-center" :class="{'d-flex': show, 'd-none': !show}" x-data="ScoreboardDetail" x-ref="scoregraph">
-      <div class="col-md-12 text-center">
-        <i class="fas fa-circle-notch fa-spin fa-3x fa-fw spinner"></i>
-      </div>
+        <div class="col-md-12 text-center">
+            <i class="fas fa-circle-notch fa-spin fa-3x fa-fw spinner"></i>
+        </div>
     </div>
 
     <div id="scoreboard" class="row" x-data="ScoreboardList">
-      <template x-if="brackets.length && standings.length">
-        <div class="col-md-12 py-3">
-          <nav class="nav nav-pills nav-fill">
-            <button :class="{'nav-link': true, 'active': !activeBracket}" @click="activeBracket=null">{% trans %}All{% endtrans %}</button>
-            <template x-for="bracket in brackets">
-              <button :class="{'nav-link': true, 'active': activeBracket == bracket.id}" x-text="bracket.name" @click="activeBracket=bracket.id"></button>
-            </template>
-          </nav>
+        <template x-if="brackets.length && standings.length">
+            <div class="col-md-12 py-3">
+                <nav class="nav nav-pills nav-fill">
+                    <button :class="{'nav-link': true, 'active': !activeBracket}" @click="activeBracket=null">{% trans %}All{% endtrans %}</button>
+                    <template x-for="bracket in brackets">
+                        <button :class="{'nav-link': true, 'active': activeBracket == bracket.id}" x-text="bracket.name" @click="activeBracket=bracket.id"></button>
+                    </template>
+                </nav>
+            </div>
+        </template>
+
+        <div class="col-md-12" x-show="standings.length">
+            <table class="table custom-scoreboard-table">
+                <thead>
+                    <tr>
+                        <td style="width: 10px "><b>{% trans %}Place{% endtrans %}</b></td>
+                        <td><b>{{ get_mode_as_word(capitalize=True) }}</b></td>
+                        <td><b>{% trans %}Score{% endtrans %}</b></td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <template x-for="(standing, index) in standings.filter(i => activeBracket ? i.bracket_id==activeBracket : true)">
+                        <tr>
+                            <th scope="row" class="text-center" x-text="index + 1"></th>
+                            <td>
+                                <a :href="standing.account_url" x-text="standing.name"></a>
+                                <template x-if="standing.bracket_name">
+                                    <span class="badge" x-text="standing.bracket_name"></span>
+                                </template>
+                            </td>
+                            <td x-text="standing.score"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </div>
-      </template>
 
-      <div class="col-md-12" x-show="standings.length">
-        <table class="table table-striped">
-          <thead>
-          <tr>
-            <td style="width: 10px"><b>{% trans %}Place{% endtrans %}</b></td>
-            <td><b>{{ get_mode_as_word(capitalize=True) }}</b></td>
-            <td><b>{% trans %}Score{% endtrans %}</b></td>
-          </tr>
-          </thead>
-
-          <tbody>
-            <template x-for="(standing, index) in standings.filter(i => activeBracket ? i.bracket_id==activeBracket : true)">
-              <tr>
-                <th scope="row" class="text-center" x-text="index + 1"></th>
-                <td>
-                  <a :href="standing.account_url" x-text="standing.name"></a>
-                  <template x-if="standing.bracket_name">
-                    <span class="badge bg-secondary ms-2" x-text="standing.bracket_name"></span>
-                  </template>
-                </td>
-                <td x-text="standing.score"></td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="col-md-12" x-show="! standings.length">
-        <h3 class="text-center text-muted">{% trans %}Scoreboard is empty{% endtrans %}</h3>
-      </div>
+        <div class="col-md-12" x-show="! standings.length">
+            <h3 class="text-center text-muted">{% trans %}Scoreboard is empty{% endtrans %}</h3>
+        </div>
     </div>
-  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
-  {{ Assets.js("assets/js/scoreboard.js") }}
+{{ Assets.js("assets/js/scoreboard.js") }}
+<script>
+    const starField = document.getElementById('starField');
+    for (let i = 0; i < 200; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+        star.style.animationDelay = `${Math.random() * 3}s`;
+        starField.appendChild(star);
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX / window.innerWidth - 0.5;
+        const mouseY = e.clientY / window.innerHeight - 0.5;
+
+        starField.style.transform = `translate(${mouseX * 20}px, ${mouseY * 20}px)`;
+    });
+
+    starField.querySelectorAll('.star').forEach(star => {
+        const size = Math.random() * 2 + 1;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+
+        const r = Math.floor(Math.random() * 255);
+        const g = Math.floor(Math.random() * 255);
+        const b = Math.floor(Math.random() * 255);
+        star.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+        star.style.filter = `blur(${Math.random()}px)`;
+    });
+
+    setInterval(() => {
+        if (Math.random() > 0.9) {
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'star';
+            shootingStar.style.left = `${Math.random() * 100}%`;
+            shootingStar.style.top = `${Math.random() * 100}%`;
+            shootingStar.style.width = '10px';
+            shootingStar.style.height = '10px';
+            shootingStar.style.backgroundColor = '#fff';
+            shootingStar.style.boxShadow = '0 0 10px #fff, 0 0 20px #fff';
+            shootingStar.style.animation = `shooting-star 1s linear`;
+
+            starField.appendChild(shootingStar);
+
+            setTimeout(() => {
+                starField.removeChild(shootingStar);
+            }, 1000);
+        }
+    }, 100);
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes shooting-star {
+            0% { transform: translateX(0) translateY(0); opacity: 1; }
+            100% { transform: translateX(1000px) translateY(1000px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 {% endblock %}

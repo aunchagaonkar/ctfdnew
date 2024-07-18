@@ -1,131 +1,254 @@
 {% extends "base.html" %}
 
 {% block stylesheets %}
+<style>
+    /* Additional styles for the starfield canvas */
+    body, html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: black;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .glowing-title {
+        font-size: 2.5rem;
+        color: #1f68ad; /* White color */
+        text-align: center;
+        position: relative;
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #2196f3; /* Blue background */
+        border-radius: 5px;
+        box-shadow: 0 0 20px rgba(33, 150, 243, 0.8); /* Glowing effect */
+        text-shadow: 0 0 20px rgba(33, 150, 243, 0.8); /* Glowing effect */
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-	<div class="jumbotron">
-		<div class="container">
-			<h1>Users</h1>
-		</div>
-	</div>
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-				{% if q and field %}
-				<h5 class="text-muted text-center">
-					Searching for users with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>
-				</h5>
-				<h6 class="text-muted text-center pb-3">
-					Page {{ users.page }} of {{ users.total }} results
-				</h6>
-				{% endif %}
+<canvas id="starfield"></canvas> <!-- Starfield canvas -->
+<div class="jumbotron">
+    <div class="container">
+        <h1 class="glowing-title">Users</h1>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            {% if q and field %}
+            <h5 class="text-muted text-center">
+                Searching for users with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>
+            </h5>
+            <h6 class="text-muted text-center pb-3">
+                Page {{ users.page }} of {{ users.total }} results
+            </h6>
+            {% endif %}
 
-				{% with form = Forms.users.PublicUserSearchForm(field=field, q=q) %}
-				<form method="GET" class="form-inline">
-					<div class="form-group col-md-2">
-						{{ form.field(class="form-control custom-select w-100") }}
-					</div>
-					<div class="form-group col-md-8">
-						{{ form.q(class="form-control w-100", placeholder="Search for matching users") }}
-					</div>
-					<div class="form-group col-md-2">
-						<button type="submit" class="btn btn-primary w-100">
-							<i class="fas fa-search" aria-hidden="true"></i>
-						</button>
-					</div>
-				</form>
-				{% endwith %}
-			</div>
-		</div>
+            {% with form = Forms.users.PublicUserSearchForm(field=field, q=q) %}
+            <form method="GET" class="form-inline">
+                <div class="form-group col-md-2">
+                    {{ form.field(class="form-control custom-select w-100") }}
+                </div>
+                <div class="form-group col-md-8">
+                    {{ form.q(class="form-control w-100", placeholder="Search for matching users") }}
+                </div>
+                <div class="form-group col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </form>
+            {% endwith %}
+        </div>
+    </div>
 
-		<hr>
+    <hr>
 
-		<div class="row">
-			<div class="col-md-12">
-				<table class="table table-striped">
-					<thead>
-					<tr>
-						<td><b>User</b></td>
-						<td><b>Website</b></td>
-						<td class="d-none d-md-table-cell d-lg-table-cell"><b>Affiliation</b></td>
-						<td class="d-none d-md-table-cell d-lg-table-cell"><b>Country</b></td>
-					</tr>
-					</thead>
-					<tbody>
-					{% for user in users.items %}
-						<tr>
-							<td>
-								{% if scores_visible() %}
-									<a href="{{ url_for('users.public', user_id=user.id) }}">
-										{{ user.name | truncate(50) }}
-									</a>
-								{% else %}
-									<span>{{ user.name | truncate(50) }}</span>
-								{% endif %}
-								{% if user.oauth_id %}
-									<a href="https://majorleaguecyber.org/u/{{ user.name }}">
-										<span class="badge badge-primary">Official</span>
-									</a>
-								{% endif %}
-							</td>
-							<td class="text-center" style="width: 10px;">
-								{% if user.website and (user.website.startswith('http://') or user.website.startswith('https://')) %}
-									<a href="{{ user.website }}" target="_blank" rel="noopener">
-										<i class="fas fa-external-link-alt" data-toggle="tooltip" data-placement="top"
-										   title="{{ user.website }}"></i>
-									</a>
-								{% endif %}
-							</td>
-							<td class="d-none d-md-table-cell d-lg-table-cell">
-								{% if user.affiliation %}
-									{% if user.affiliation | length > 50 %}
-										<span data-toggle="tooltip" data-placement="top" title="{{ user.affiliation }}">
-									{% if user.affiliation %}{{ user.affiliation | truncate(50) }}{% endif %}
-								</span>
-									{% else %}
-										<span>
-									{% if user.affiliation %}{{ user.affiliation | truncate(50) }}{% endif %}
-								</span>
-									{% endif %}
-								{% endif %}
-							</td>
-							<td class="d-none d-md-table-cell d-lg-table-cell">
-								<span>
-									{% if user.country %}
-										<i class="flag-{{ user.country.lower() }}"></i>
-										{{ lookup_country_code(user.country) }}
-									{% endif %}
-								</span>
-							</td>
-						</tr>
-					{% endfor %}
-					</tbody>
-				</table>
-			</div>
-		</div>
-		{% if users.pages > 1 %}
-			<div class="row">
-				<div class="col-md-12">
-					<div class="text-center">Page
-						<br>
-						{% if users.page != 1 %}
-						<a href="{{ prev_page }}">&lt;&lt;&lt;</a>
-						{% endif %}
-						<select class="page-select">
-							{% for page in range(1, users.pages + 1) %}
-							<option {% if users.page == page %}selected{% endif %}>{{ page }}</option>
-							{% endfor %}
-						</select>
-						{% if users.next_num %}
-						<a href="{{ next_page }}">&gt;&gt;&gt;</a>
-						{% endif %}
-					</div>
-				</div>
-			</div>
-		{% endif %}
-	</div>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <td><b>User</b></td>
+                        <td><b>Website</b></td>
+                        <td class="d-none d-md-table-cell d-lg-table-cell"><b>Affiliation</b></td>
+                        <td class="d-none d-md-table-cell d-lg-table-cell"><b>Country</b></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users.items %}
+                    <tr>
+                        <td>
+                            {% if scores_visible() %}
+                            <a href="{{ url_for('users.public', user_id=user.id) }}">
+                                {{ user.name | truncate(50) }}
+                            </a>
+                            {% else %}
+                            <span>{{ user.name | truncate(50) }}</span>
+                            {% endif %}
+                            {% if user.oauth_id %}
+                            <a href="https://majorleaguecyber.org/u/{{ user.name }}">
+                                <span class="badge badge-primary">Official</span>
+                            </a>
+                            {% endif %}
+                        </td>
+                        <td class="text-center" style="width: 10px;">
+                            {% if user.website and (user.website.startswith('http://') or user.website.startswith('https://')) %}
+                            <a href="{{ user.website }}" target="_blank" rel="noopener">
+                                <i class="fas fa-external-link-alt" data-toggle="tooltip" data-placement="top"
+                                    title="{{ user.website }}"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                        <td class="d-none d-md-table-cell d-lg-table-cell">
+                            {% if user.affiliation %}
+                            {% if user.affiliation | length > 50 %}
+                            <span data-toggle="tooltip" data-placement="top" title="{{ user.affiliation }}">
+                                {% if user.affiliation %}{{ user.affiliation | truncate(50) }}{% endif %}
+                            </span>
+                            {% else %}
+                            <span>
+                                {% if user.affiliation %}{{ user.affiliation | truncate(50) }}{% endif %}
+                            </span>
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="d-none d-md-table-cell d-lg-table-cell">
+                            <span>
+                                {% if user.country %}
+                                <i class="flag-{{ user.country.lower() }}"></i>
+                                {{ lookup_country_code(user.country) }}
+                                {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if users.pages > 1 %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="text-center">Page
+                <br>
+                {% if users.page != 1 %}
+                <a href="{{ prev_page }}">&lt;&lt;&lt;</a>
+                {% endif %}
+                <select class="page-select">
+                    {% for page in range(1, users.pages + 1) %}
+                    <option {% if users.page == page %}selected{% endif %}>{{ page }}</option>
+                    {% endfor %}
+                </select>
+                {% if users.next_num %}
+                <a href="{{ next_page }}">&gt;&gt;&gt;</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const canvas = document.getElementById("starfield");
+        const ctx = canvas.getContext("2d");
+        const numStars = 5000; // Increase number of stars
+        const speed = 3; // Increase speed for more movement
+        const maxDepth = 1000; // Adjust max depth for faster recycling
+        const starColors = ["#FFFFFF", "#FFDDC1", "#FFC0CB", "#ADD8E6", "#B0E0E6"]; // Bright star colors
+        let stars = [];
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function getRandomColor() {
+            return starColors[Math.floor(Math.random() * starColors.length)];
+        }
+
+        class Star {
+            constructor(x, y, z, size, color) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.size = size;
+                this.color = color;
+            }
+
+            update() {
+                this.z -= speed * (2 - this.z / maxDepth);
+                if (this.z <= 0) {
+                    this.reset();
+                }
+            }
+
+            reset() {
+                this.z = maxDepth;
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = Math.sqrt(Math.random()) * (canvas.width / 2);
+                this.x = Math.cos(angle) * distance;
+                this.y = Math.sin(angle) * distance;
+				this.size = (1 - distance / (canvas.width / 2)) * 0.5 + 1;
+                this.color = getRandomColor();
+            }
+
+            draw() {
+                const x = ((this.x / this.z) * canvas.width) / 2 + canvas.width / 2;
+                const y = ((this.y / this.z) * canvas.height) / 2 + canvas.height / 2;
+				const radius = (1 - this.z / maxDepth) * this.size * 5;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 3, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function initStars() {
+            stars = Array.from({ length: numStars }, () => {
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = Math.sqrt(Math.random()) * (canvas.width / 2);
+                return new Star(
+                    Math.cos(angle) * distance,
+                    Math.sin(angle) * distance,
+                    Math.random() * maxDepth,
+					(1 - distance / (canvas.width / 2)) * 0.5 + 1,
+                    getRandomColor()
+                );
+            });
+        }
+
+        function updateAndDrawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach((star) => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(updateAndDrawStars);
+        }
+
+        window.addEventListener("resize", () => {
+            setCanvasSize();
+            initStars();
+        });
+
+        setCanvasSize();
+        initStars();
+        updateAndDrawStars();
+    });
+</script>
 {% endblock %}

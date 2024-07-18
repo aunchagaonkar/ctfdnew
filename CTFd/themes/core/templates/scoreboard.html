@@ -1,69 +1,198 @@
 {% extends "base.html" %}
 
+{% block stylesheets %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+    body, html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Orbitron', sans-serif;
+        background-color: #000;
+        color: #0f0;
+        overflow: hidden;
+        height: 100vh;
+    }
+
+    .section {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    h2 {
+        font-size: 4em;
+        text-align: center;
+        text-shadow: 0 0 20px #0f0;
+        z-index: 1;
+        margin: 0;
+    }
+
+    .tagline {
+        font-size: 1.8em;
+        text-align: center;
+        text-shadow: 0 0 10px #0f0;
+        z-index: 1;
+        margin-top: 20px;
+    }
+
+    .description {
+        font-size: 1.2em;
+        text-align: center;
+        max-width: 600px;
+        margin-top: 20px;
+        color: #8fbc8f;
+        z-index: 1;
+    }
+
+    .star-field {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        perspective: 600px;
+    }
+
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background-color: #fff;
+        animation: star-fall linear infinite;
+    }
+
+    @keyframes star-fall {
+        0% { transform: translateZ(0); opacity: 1; }
+        100% { transform: translateZ(600px); opacity: 0; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="jumbotron">
-	<div class="container">
-		<h1>Scoreboard</h1>
-	</div>
-</div>
-<div class="container">
-	{% include "components/errors.html" %}
+<div class="section">
+    <div class="star-field" id="starField"></div>
+    <h2>Scoreboard</h2>
+    <div class="tagline">Check out the current standings</div>
 
-	<div id="score-graph" class="row d-flex align-items-center">
-		<div class="col-md-12 text-center">
-			<i class="fas fa-circle-notch fa-spin fa-3x fa-fw spinner"></i>
-		</div>
-	</div>
+    <div class="container">
+        {% include "components/errors.html" %}
 
-	{% cache 60, CacheKeys.PUBLIC_SCOREBOARD_TABLE %}
-	{% if standings %}
-	<div id="scoreboard" class="row">
-		<div class="col-md-12">
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<td scope="col" width="10px"><b>Place</b></td>
-						<td scope="col"><b>{{ get_mode_as_word(capitalize=True) }}</b></td>
-						<td scope="col"><b>Score</b></td>
-					</tr>
-				</thead>
-				<tbody>
-				{% for standing in standings %}
-					<tr>
-						<th scope="row" class="text-center">{{ loop.index }}</th>
-						<td>
-							<a href="{{ generate_account_url(standing.account_id) }}">
-								{{ standing.name | truncate(50) }}
+        <div id="score-graph" class="row d-flex align-items-center">
+            <div class="col-md-12 text-center">
+                <canvas id="scoreGraph"></canvas>
+            </div>
+        </div>
 
-								{% if standing.oauth_id %}
-									{% if Configs.user_mode == 'teams' %}
-									<a href="https://majorleaguecyber.org/t/{{ standing.name }}">
-										<span class="badge badge-primary">Official</span>
-									</a>
-									{% elif Configs.user_mode == 'users' %}
-									<a href="https://majorleaguecyber.org/u/{{ standing.name }}">
-										<span class="badge badge-primary">Official</span>
-									</a>
-									{% endif %}
-								{% endif %}
-							</a>
-						</td>
-						<td>{{ standing.score }}</td>
-					</tr>
-				{% endfor %}
-				</tbody>
-			</table>
-		</div>
-	</div>
-	{% endif %}
-	{% endcache %}
+        {% cache 60, CacheKeys.PUBLIC_SCOREBOARD_TABLE %}
+        {% if standings %}
+        <div id="scoreboard" class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col" width="10%"><b>Place</b></th>
+                            <th scope="col"><b>{{ get_mode_as_word(capitalize=True) }}</b></th>
+                            <th scope="col"><b>Score</b></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for standing in standings %}
+                        <tr>
+                            <th scope="row" class="text-center">{{ loop.index }}</th>
+                            <td>
+                                <a href="{{ generate_account_url(standing.account_id) }}">
+                                    {{ standing.name | truncate(50) }}
+
+                                    {% if standing.oauth_id %}
+                                    {% if Configs.user_mode == 'teams' %}
+                                    <a href="https://majorleaguecyber.org/t/{{ standing.name }}">
+                                        <span class="badge badge-primary">Official</span>
+                                    </a>
+                                    {% elif Configs.user_mode == 'users' %}
+                                    <a href="https://majorleaguecyber.org/u/{{ standing.name }}">
+                                        <span class="badge badge-primary">Official</span>
+                                    </a>
+                                    {% endif %}
+                                    {% endif %}
+                                </a>
+                            </td>
+                            <td>{{ standing.score }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        {% endcache %}
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-	<script defer src="{{ url_for('views.themes', path='js/echarts.bundle.js') }}"></script>
-{% endblock %}
+    {{ super() }}
+    <script>
+        const starField = document.getElementById('starField');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            star.style.animationDelay = `${Math.random() * 3}s`;
+            starField.appendChild(star);
+        }
 
-{% block entrypoint %}
-	<script defer src="{{ url_for('views.themes', path='js/pages/scoreboard.js') }}"></script>
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth - 0.5;
+            const mouseY = e.clientY / window.innerHeight - 0.5;
+
+            starField.style.transform = `translate(${mouseX * 20}px, ${mouseY * 20}px)`;
+        });
+
+        starField.querySelectorAll('.star').forEach(star => {
+            const size = Math.random() * 2 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+
+            const r = Math.floor(Math.random() * 255);
+            const g = Math.floor(Math.random() * 255);
+            const b = Math.floor(Math.random() * 255);
+            star.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+            star.style.filter = `blur(${Math.random()}px)`;
+        });
+
+        setInterval(() => {
+            if (Math.random() > 0.9) {
+                const shootingStar = document.createElement('div');
+                shootingStar.className = 'star';
+                shootingStar.style.left = `${Math.random() * 100}%`;
+                shootingStar.style.top = `${Math.random() * 100}%`;
+                shootingStar.style.width = '3px';
+                shootingStar.style.height = '3px';
+                shootingStar.style.backgroundColor = '#fff';
+                shootingStar.style.boxShadow = '0 0 10px #fff, 0 0 20px #fff';
+                shootingStar.style.animation = `shooting-star 1s linear`;
+
+                starField.appendChild(shootingStar);
+
+                setTimeout(() => {
+                    starField.removeChild(shootingStar);
+                }, 1000);
+            }
+        }, 100);
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shooting-star {
+                0% { transform: translateX(0) translateY(0); opacity: 1; }
+                100% { transform: translateX(1000px) translateY(1000px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 {% endblock %}

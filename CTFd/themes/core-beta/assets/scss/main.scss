@@ -53,8 +53,8 @@ blockquote {
 
 .input-filled-valid {
   background-color: transparent !important;
-  border-color: #a3d39c;
-  box-shadow: 0 0 0 0.1rem #a3d39c;
+  border-color: #3498db; // Changed to hacker theme blue
+  box-shadow: 0 0 0 0.1rem #3498db; // Changed to hacker theme blue
   transition:
     background-color 0.3s,
     border-color 0.3s;
@@ -79,9 +79,15 @@ blockquote {
 
 .form-control:focus {
   background-color: transparent;
-  border-color: #a3d39c;
-  box-shadow: 0 0 0 0.1rem #a3d39c;
+  border-color: #3498db; // Changed to hacker theme blue
+  box-shadow: 0 0 0 0.1rem #3498db; // Changed to hacker theme blue
   transition:
     background-color 0.3s,
     border-color 0.3s;
+}
+
+// Added global border for content
+.content {
+  border: 2px solid #3498db; // Hacker theme blue border
+  padding: 20px;
 }

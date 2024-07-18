@@ -11,8 +11,22 @@ main {
   margin-bottom: 2rem;
   text-align: center;
 
-  background-color: var(--bs-dark);
-  color: var(--bs-white);
+  background-color: #333;
+  color: #8f8;
+  font-family: 'Courier New', Courier, monospace;
+  position: relative;
+  
+}
+.jumbotron::after {
+  content: '|';
+  animation: blink-cursor 0.75s step-end infinite;
+  position: absolute;
+  right: 10px;
+}
+
+@keyframes blink-cursor {
+  from, to { color: transparent }
+  50% { color: #8f8 }
 }
 
 @media (min-width: 576px) {

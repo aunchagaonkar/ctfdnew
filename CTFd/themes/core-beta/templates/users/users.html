@@ -1,11 +1,191 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="jumbotron">
-    <div class="container">
-      <h1>{% trans %}Users{% endtrans %}</h1>
-    </div>
+<style>
+ @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,900');
+
+  @font-face {
+  font-family: "Frozen";
+  src: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/209981/Ice%20kingdom%20-%20Bold%20-%20Por%20Kustren.woff");
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to bottom, #000428, #004e92), url("https://assets.codepen.io/209981/ice5.jpg");
+  background-blend-mode: saturation;
+  background-size: cover;
+}
+
+.jumbotron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 10vh;
+  background: linear-gradient(to bottom, rgba(0,4,40,0.5), rgba(0,78,146,0.5)), url("https://assets.codepen.io/209981/ice5.jpg");
+  background-blend-mode: saturation;
+  background-size: cover;
+  position: relative;
+}
+
+.container {
+  text-align: center;
+}
+
+.frozen-title {
+  font-size: calc(5vw + 1rem);
+  font-family: "Frozen", serif;
+  background-image: url("https://assets.codepen.io/209981/ice.jpg");
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: cover;
+  position: relative;
+  -webkit-text-stroke: 1px #4f90ab;
+  animation: shine 20s infinite linear;
+}
+
+@keyframes shine {
+  0%, 100% {
+    background-position: left bottom;
+  }
+  50% {
+    background-position: right top;
+  }
+}
+/* jumbotron users-----------------------------------------------------------------------
+
+*/
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #000;
+    color: #0f0;
+    overflow: hidden;
+    height: 100vh;
+}
+.custom-scoreboard-table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #3d3535;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+}
+  .custom-scoreboard-table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #3d3535;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+  }
+  .custom-scoreboard-table th, .custom-scoreboard-table td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #163118;
+  }
+  .custom-scoreboard-table tr:hover {
+    background-color: #443c3c;
+    transform: scale(1.02);
+    cursor: pointer;
+  }
+  .custom-scoreboard-table th {
+    background-color: #4CAF50;
+    color: rgb(83, 70, 70);
+  }
+  .nav-link.active {
+    background-color: #4CAF50 !important;
+    color: rgb(0, 0, 0) !important;
+  }
+
+  .jumbotron{
+    background-color: #050404; /* Darker background for sections */
+    color: #0f0; /* Green text */
+  }
+
+  .btn-primary {
+    background-color: #4CAF50; /* Green background for buttons */
+    border-color: #4CAF50; /* Green border for buttons */
+  }
+
+  .form-control, .form-select {
+    background-color: #333; /* Darker background for form elements */
+    color: #0f0; /* Green text for form elements */
+    border: 1px solid #4CAF50; /* Green border for form elements */
+  }
+
+  /* Additional styles for the scoreboard */
+  .custom-scoreboard-table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #3d3535; /* Dark background for the table */
+    color: #0f0; /* Green text for the table */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional: Adds a subtle shadow */
+  }
+
+  .custom-scoreboard-table th, .custom-scoreboard-table td {
+    border-bottom: 1px solid #163118; /* Greenish border for separation */
+  }
+
+  .custom-scoreboard-table th {
+    background-color: #4CAF50; /* Green background for table headers */
+  }
+  .table {
+    border: 1px solid #4CAF50; /* Green borders */
+    color: #0f0; /* Green text */
+    background-color: transparent; /* Transparent background */
+  }
+  .row, .col-md-12, .table table-striped {
+    background-color: #000 ; /* Force black background */
+    color: #0f0; /* Green text for visibility */
+  }
+
+  .table thead tr {
+    border-bottom: 2px solid #4CAF50; /* Green border for header row */
+  }
+
+  .table td, .table th {
+    border: 1px solid #4CAF50; /* Green borders for cells */
+    color: #0f0; /* Ensure text within cells is green for visibility */
+  }
+
+  .badge {
+    background-color: #4CAF50; /* Adjust badge background to green */
+  }
+
+ .table-striped {
+    --bs-table-color: #000 !important;
+    --bs-table-bg: #000000 !important;
+    --bs-table-border-color: #000000 !important;
+    --bs-table-striped-bg: #000000 !important;
+    --bs-table-striped-color: #000 !important;
+    --bs-table-active-bg: #000000 !important;
+    --bs-table-active-color: #000 !important;
+    --bs-table-hover-bg: #000000 !important;
+    --bs-table-hover-color: #000 !important;
+    color: var(--bs-table-color) !important;
+    border-color: var(--bs-table-border-color) !important;
+}
+
+.glitch {
+  color: #0f0;
+}
+/* .form-control {
+  background-color: #67f8f1;
+  color: #0f0;
+  border: 1px solid #4CAF50;
+
+} */
+</style>
+<div class="star-field" id="starField"></div> <!-- Star field container -->
+
+<div class="jumbotron">
+  <div class="container">
+    <h1 class="frozen-title">{% trans %}Users{% endtrans %}</h1>
   </div>
+</div>
+
+
   <div class="container">
     <div class="row">
       <div class="col-md-12">
@@ -37,16 +217,14 @@
     </div>
 
     <hr>
-
     <div class="row">
       <div class="col-md-12">
         <table class="table table-striped">
           <thead>
           <tr>
-            <td><b>{% trans %}User{% endtrans %}</b></td>
-            <td><b>{% trans %}Website{% endtrans %}</b></td>
-            <td class="d-none d-md-table-cell"><b>{% trans %}Affiliation{% endtrans %}</b></td>
-            <td class="d-none d-md-table-cell"><b>{% trans %}Country{% endtrans %}</b></td>
+            <td><b>User</b></td>
+            <td class="d-none d-md-table-cell"><b>Affiliation</b></td>
+            <td class="d-none d-md-table-cell"><b>Country</b></td>
           </tr>
           </thead>
           <tbody>
@@ -54,51 +232,40 @@
             <tr>
               <td>
                 {% if scores_visible() %}
-                  <a href="{{ url_for('users.public', user_id=user.id) }}">
+                  <a href="{{ url_for('users.public', user_id=user.id) }}" class="glitch" data-text="{{ user.name | truncate(50) }}">
                     {{ user.name | truncate(50) }}
                   </a>
                 {% else %}
-                  <span>{{ user.name | truncate(50) }}</span>
+                  <span class="glitch" data-text="{{ user.name | truncate(50) }}">{{ user.name | truncate(50) }}</span>
                 {% endif %}
-
+    
                 {% if user.oauth_id %}
                   <a href="https://majorleaguecyber.org/u/{{ user.name }}">
-                    <span class="badge bg-primary ms-2">{% trans %}Official{% endtrans %}</span>
+                    <span class="badge bg-primary ms-2">Official</span>
                   </a>
                 {% endif %}
               </td>
-
-              <td class="text-center" style="width: 10px;">
-                {% if user.website and (user.website.startswith('http://') or user.website.startswith('https://')) %}
-                  <a href="{{ user.website }}" target="_blank" rel="noopener">
-                    <i
-                        class="fas fa-external-link-alt" data-toggle="tooltip" data-placement="top"
-                        title="{{ user.website }}"
-                    ></i>
-                  </a>
-                {% endif %}
-              </td>
-
+    
               <td class="d-none d-md-table-cell d-lg-table-cell">
                 {% if user.affiliation %}
                   {% if user.affiliation | length > 50 %}
                     <span data-toggle="tooltip" data-placement="top" title="{{ user.affiliation }}">
-									{% if user.affiliation %}{{ user.affiliation | truncate(50) }}{% endif %}
-								</span>
+                      {{ user.affiliation | truncate(50) }}
+                    </span>
                   {% else %}
                     <span>
-									{% if user.affiliation %}{{ user.affiliation | truncate(50) }}{% endif %}
-								</span>
+                      {{ user.affiliation | truncate(50) }}
+                    </span>
                   {% endif %}
                 {% endif %}
               </td>
               <td class="d-none d-md-table-cell d-lg-table-cell">
-								<span>
-									{% if user.country %}
+                <span>
+                  {% if user.country %}
                     <i class="flag-{{ user.country.lower() }}"></i>
                     {{ lookup_country_code(user.country) }}
                   {% endif %}
-								</span>
+                </span>
               </td>
             </tr>
           {% endfor %}
