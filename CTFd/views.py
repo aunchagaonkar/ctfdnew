@@ -233,8 +233,7 @@ def setup():
       <a href="admin">Click here</a> to login and setup your CTF
     </h4>
   </div>
-</div>
-"""
+</div>"""
             page.content = index
 
             # Visibility
