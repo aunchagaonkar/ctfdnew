@@ -205,22 +205,36 @@ def setup():
                 set_config("ctf_banner", f.location)
 
             # Splice in our banner
-            index = f"""<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <img class="w-100 mx-auto d-block" style="max-width: 500px;padding: 50px;padding-top: 14vh;" src="{default_ctf_banner_location}" />
-        <h3 class="text-center">
-            <p>A cool CTF platform from <a href="https://www.wcewlug.com">wlug</a></p>
-            <p>WLUG:</p>
-            <a href="https://twitter.com/ctfdio"><i class="fab fa-twitter fa-2x" aria-hidden="true"></i></a>&nbsp;
-            <a href="https://facebook.com/ctfdio"><i class="fab fa-facebook fa-2x" aria-hidden="true"></i></a>&nbsp;
-            <a href="https://github.com/ctfd"><i class="fab fa-github fa-2x" aria-hidden="true"></i></a>
-        </h3>
-        <br>
-        <h4 class="text-center">
-            <a href="admin">Click here</a> to login and setup your CTF
-        </h4>
-    </div>
-</div>"""
+       index = f"""
+<style>
+  .glass-card {{
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 20px;
+    margin: 10px;
+  }}
+</style>
+<div class="row">
+  <div class="col-md-6 offset-md-3 glass-card">
+    <img class="w-100 mx-auto d-block" style="max-width: 500px;padding: 50px;padding-top: 14vh;" src="{default_ctf_banner_location}" />
+    <h3 class="text-center">
+      <p>A cool CTF platform from <a href="https://www.wcewlug.org">wlug</a></p>
+      <p>WLUG:</p>
+      <a href="https://twitter.com/ctfdio"><i class="fab fa-twitter fa-2x" aria-hidden="true"></i></a>&nbsp;
+      <a href="https://facebook.com/ctfdio"><i class="fab fa-facebook fa-2x" aria-hidden="true"></i></a>&nbsp;
+      <a href="https://github.com/ctfd"><i class="fab fa-github fa-2x" aria-hidden="true"></i></a>
+    </h3>
+    <br>
+    <h4 class="text-center">
+      <a href="admin">Click here</a> to login and setup your CTF
+    </h4>
+  </div>
+</div>
+"""
             page.content = index
 
             # Visibility
