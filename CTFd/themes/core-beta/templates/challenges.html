@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% if request.path == '/challenges' %}
 <style>
 @font-face {
   font-family: "Frozen";
