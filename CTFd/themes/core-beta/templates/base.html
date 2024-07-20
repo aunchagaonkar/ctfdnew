@@ -42,7 +42,7 @@
   <style>
     /* Background image styling */
     body, html {
-      background-image: url("https://firebasestorage.googleapis.com/v0/b/final-project-cb1da.appspot.com/o/village1.png?alt=media&token=2df33fac-984c-414e-8b6d-3f54513651e4");
+      background-image: url("../assets/img/village1.png");
       background-size: cover; /* Cover the entire page, maintaining aspect ratio */
       background-repeat: no-repeat; /* Do not repeat the image */
       background-position: center center; /* Center the background image */
@@ -105,17 +105,19 @@
 
   <footer class="footer">
     <div class="container text-center">
-      <a href="https://ctfd.io" class="text-secondary">
+      <a href="https://www.wcewlug.org" class="text-secondary">
         <small class="text-muted">
-          {% trans %}Powered by CTFd{% endtrans %}
+          {% trans %}WLUG{% endtrans %}
         </small>
       </a>
     </div>
   </footer>
 
   {% include "components/notifications.html" %}
+  {% if request.path == '/' %}
+  
   <canvas id="matrixCanvas"></canvas>  
-
+  {% endif %}
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const canvas = document.getElementById('matrixCanvas');
@@ -142,7 +144,7 @@
         ctx.font = `${fontSize}px monospace`;
 
         for (let i = 0; i < drops.length; i++) {
-            const text = characters.charAt(Math.floor(Math.random() * characters.length));
+           const text = characters.charAt(Math.floor(Math.random() * characters.length));
 
             // Apply glow effect only to the text
             ctx.shadowBlur = 20; // Adjust the glow radius
@@ -159,7 +161,6 @@
             drops[i]++;
         }
       }
-
       // setInterval(drawMatrixRain, 60);
 
       {% if request.path == '/' %}

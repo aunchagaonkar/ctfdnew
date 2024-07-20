@@ -121,7 +121,7 @@ def setup():
                 f = upload_file(file=ctf_small_icon)
                 set_config("ctf_small_icon", f.location)
 
-            theme = request.form.get("ctf_theme", DEFAULT_THEME)
+           theme = request.form.get("ctf_theme", DEFAULT_THEME)
             set_config("ctf_theme", theme)
             theme_color = request.form.get("theme_color")
             theme_header = get_config("theme_header")
@@ -205,42 +205,41 @@ def setup():
                 set_config("ctf_banner", f.location)
 
             # Splice in our banner
-       index = f"""
+            index = f"""
 <style>
-  .row {{
+.row {{
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-  }}
-  .glass-card {{
+    height: 100%;
+}}
+.glass-card {{
     height: 80%;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
-    flex: 0 1 auto;
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 20px;
     margin: 10px;
-  }}
+}}
 </style>
 <div class="row">
-  <div class="col-md-6 offset-md-3 glass-card">
-    <img class="w-100 mx-auto d-block" style="max-width: 500px;padding: 50px;padding-top: 14vh;" src="{default_ctf_banner_location}" />
-    <h3 class="text-center">
-      <p>A cool CTF platform from <a href="https://www.wcewlug.org">wlug</a></p>
-      <p>WLUG:</p>
-      <a href="https://twitter.com/ctfdio"><i class="fab fa-twitter fa-2x" aria-hidden="true"></i></a>&nbsp;
-      <a href="https://facebook.com/ctfdio"><i class="fab fa-facebook fa-2x" aria-hidden="true"></i></a>&nbsp;
-      <a href="https://github.com/ctfd"><i class="fab fa-github fa-2x" aria-hidden="true"></i></a>
-    </h3>
-    <br>
-    <h4 class="text-center">
-      <a href="admin">Click here</a> to login and setup your CTF
-    </h4>
-  </div>
+    <div class="col-md-6 offset-md-3 glass-card">
+        <img class="w-100 mx-auto d-block" style="max-width: 500px;padding: 50px;padding-top: 14vh;" src="{default_ctf_banner_location}" />
+        <h3 class="text-center">
+            <p>A cool CTF platform from <a href="https://www.wcewlug.org">wlug</a></p>
+            <p>WLUG:</p>
+            <a href="https://twitter.com/ctfdio"><i class="fab fa-twitter fa-2x" aria-hidden="true"></i></a>&nbsp;
+            <a href="https://facebook.com/ctfdio"><i class="fab fa-facebook fa-2x" aria-hidden="true"></i></a>&nbsp;
+            <a href="https://github.com/ctfd"><i class="fab fa-github fa-2x" aria-hidden="true"></i></a>
+        </h3>
+        <br>
+        <h4 class="text-center">
+            <a href="admin">Click here</a> to login and setup your CTF
+        </h4>
+    </div>
 </div>"""
             page.content = index
 
@@ -263,69 +262,23 @@ def setup():
             set_config("mail_username", None)
             set_config("mail_password", None)
             set_config("mail_useauth", None)
-
-            # Set up default emails
-            set_config("verification_email_subject", DEFAULT_VERIFICATION_EMAIL_SUBJECT)
-            set_config("verification_email_body", DEFAULT_VERIFICATION_EMAIL_BODY)
-
-            set_config(
-                "successful_registration_email_subject",
-                DEFAULT_SUCCESSFUL_REGISTRATION_EMAIL_SUBJECT,
-            )
-            set_config(
-                "successful_registration_email_body",
-                DEFAULT_SUCCESSFUL_REGISTRATION_EMAIL_BODY,
-            )
-
-            set_config(
-                "user_creation_email_subject", DEFAULT_USER_CREATION_EMAIL_SUBJECT
-            )
-            set_config("user_creation_email_body", DEFAULT_USER_CREATION_EMAIL_BODY)
-
-            set_config("password_reset_subject", DEFAULT_PASSWORD_RESET_SUBJECT)
-            set_config("password_reset_body", DEFAULT_PASSWORD_RESET_BODY)
-
-            set_config(
-                "password_change_alert_subject",
-                "Password Change Confirmation for {ctf_name}",
-            )
-            set_config(
-                "password_change_alert_body",
-                (
-                    "Your password for {ctf_name} has been changed.\n\n"
-                    "If you didn't request a password change you can reset your password here: {url}"
-                ),
-            )
+            set_config("mailfrom_addr", None)
 
             set_config("setup", True)
 
-            try:
-                db.session.add(admin)
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
+            db.session.add(page)
+            db.session.add(admin)
+            db.session.commit()
+            db.session.close()
 
-            try:
-                db.session.add(page)
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
+            cache.clear()
 
             login_user(admin)
 
-            db.session.close()
-            with app.app_context():
-                cache.clear()
-
-            return redirect(url_for("views.static_html"))
-        try:
-            return render_template("setup.html", state=serialize(generate_nonce()))
-        except TemplateNotFound:
-            # Set theme to default and try again
-            set_config("ctf_theme", DEFAULT_THEME)
-            return render_template("setup.html", state=serialize(generate_nonce()))
+            return redirect(url_for("admin.static_html"))
+        state = serialize(generate_nonce())
+        return render_template("setup.html", state=state)
     return redirect(url_for("views.static_html"))
-
 
 @views.route("/setup/integrations", methods=["GET", "POST"])
 def integrations():
@@ -601,3 +554,4 @@ def robots():
     r = make_response(text, 200)
     r.mimetype = "text/plain"
     return r
+ 
